@@ -1,6 +1,6 @@
 // C++ code
 //
-#define F_Sonar 8 //센서 핀 위치
+#define F_Sonar 8                         //센서 핀 위치
 #define R_Sonar 10
 #define L_Sonar 11
 
