@@ -1,14 +1,20 @@
 #include <NewPing.h>
-#define L_InPin_1  2  //왼쪽모터 핀1
-#define L_InPin_2  3  //왼쪽모터 핀2
-#define R_InPin_1  7  //오른쪽모터 핀1
-#define R_InPin_2  4  //오른쪽모터 핀2
-#define L_en  5 //왼쪽모터 속도 제어 핀
-#define R_en  6 //오른쪽모터 속도 제어 핀
 #define F_Sonar  8  //정면부 초음파 센서 연결 핀
 #define R_Sonar  10 //오른쪽 초음파 센서 연결 핀
 #define L_Sonar  11 //왼쪽 초음파 센서 연결 핀
 #define MaxDistance  150
+
+//3번과 4번 핀은 모터 제어에 관한 핀
+#define IN1  3
+ #define IN2 2
+ #define ENA 5
+ 
+ #define IN3  7
+ #define IN4  4
+ #define ENB  6
+
+
+int a;
 
 float R_sonar_Distance = 0.0;
 float R_sonar_Distance_old = 0.0;
@@ -48,23 +54,88 @@ void updata_sonar_error(void)
  L_sonar_Error =  L_sonar_Distance -  L_sonar_Distance_old;
  F_sonar_Error =  F_sonar_Distance -  F_sonar_Distance_old;
 }
+
+
+void motor(int L_sp, int R_sp)
+{
+  Go(a,100-R_sonar_Error*2, 100+R_sonar_Error*2);
+}
+
 void setup() {
   // put your setup code here, to run once:
 Serial.begin(115200);
-
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT); 
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);//3,4번 제어핀들은 핀모드를 출력으로 설정
+ 
 
 }
 
+
 void loop() {
   // put your main code here, to run repeatedly:
+ float p_gain = 1.5;
+ int motor_diff = 0;
+ 
  read_sonar_sensor();
  updata_sonar_error();
  updata_sonar_old();
  Serial.print(R_sonar_Error); Serial.print("\t ");
  Serial.print(L_sonar_Error); Serial.print("\t ");
  Serial.println(F_sonar_Error);
+
+ motor_diff = R_sonar_Error*p_gain;
+ motor(100 - motor_diff, 100 + motor_diff);
  delay(250);
- 
- 
- 
+
+  
 }
+ void Go(int a, int L_sp,int R_sp)
+ {
+   //전진
+ digitalWrite(IN1, HIGH);
+ digitalWrite(IN2, LOW);
+ digitalWrite(IN3, HIGH);
+ digitalWrite(IN4, LOW);
+ analogWrite(ENA, L_sp);
+ analogWrite(ENB, R_sp); 
+ delay(a);
+ }
+ 
+ //후진
+ void back()
+ {
+ digitalWrite(IN1, LOW);
+ digitalWrite(IN2, HIGH);
+ digitalWrite(IN3, LOW);
+ digitalWrite(IN4, HIGH);
+ analogWrite(ENA, 100);
+ analogWrite(ENB, 100);
+ delay(100);
+ }
+
+ void right()
+ {//right
+ digitalWrite(IN1, HIGH);
+ digitalWrite(IN2, LOW);
+ digitalWrite(IN3, LOW);
+ digitalWrite(IN4, HIGH);
+ analogWrite(ENA, 100);
+ analogWrite(ENB, 100);
+ delay(100);
+ }
+
+
+  void lefted()
+  {
+    //lefted
+ digitalWrite(IN1, LOW);
+ digitalWrite(IN2, HIGH);
+ digitalWrite(IN3, HIGH);
+ digitalWrite(IN4, LOW);
+ analogWrite(ENA, 100);
+ analogWrite(ENB, 100);
+ delay(100);
+ }
+
